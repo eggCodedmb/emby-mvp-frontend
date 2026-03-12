@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import http from '../api/http'
 import { useAuthStore } from '../stores/auth'
@@ -14,7 +15,6 @@ const size = ref(20)
 const error = ref('')
 
 const scanLoading = ref(false)
-const scanMsg = ref('')
 const scanDialog = ref(false)
 const folderCurrentPath = ref('')
 const folderParentPath = ref('')
@@ -48,13 +48,12 @@ const loadFolders = async (path = '') => {
 }
 
 const openScanDialog = async () => {
-  scanMsg.value = ''
   selectedFolderPath.value = ''
   try {
     await loadFolders('')
     scanDialog.value = true
   } catch (e: any) {
-    scanMsg.value = e?.response?.data?.message || e.message || '读取目录失败'
+    ElMessage.error(e?.response?.data?.message || e.message || '读取目录失败')
   }
 }
 
@@ -64,11 +63,10 @@ const selectCurrentFolder = () => {
 
 const startScan = async () => {
   if (!selectedFolderPath.value) {
-    scanMsg.value = '请先选择目录'
+    ElMessage.warning('请先选择目录')
     return
   }
   scanLoading.value = true
-  scanMsg.value = ''
   try {
     const res = await http.post<ApiResponse<{ successCount: number; failCount: number }>>('/api/library/scan', {
       folderPath: selectedFolderPath.value,
@@ -76,11 +74,11 @@ const startScan = async () => {
     })
     if (res.data.code !== 0) throw new Error(res.data.message)
     const d = res.data.data
-    scanMsg.value = `成功（${d.successCount ?? 0}）/失败（${d.failCount ?? 0}）`
+    ElMessage.success(`成功（${d.successCount ?? 0}）/失败（${d.failCount ?? 0}）`)
     scanDialog.value = false
     await loadData()
   } catch (e: any) {
-    scanMsg.value = e?.response?.data?.message || e.message || '扫描失败'
+    ElMessage.error(e?.response?.data?.message || e.message || '扫描失败')
   } finally {
     scanLoading.value = false
   }
@@ -106,7 +104,6 @@ onMounted(loadData)
     </header>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="scanMsg" :class="scanMsg.includes('失败') ? 'error' : ''">{{ scanMsg }}</p>
     <p v-if="loading">加载中...</p>
 
     <div v-if="scanDialog" class="modal-mask">
