@@ -59,7 +59,7 @@ onBeforeUnmount(async () => {
         ref="videoEl"
         controls
         style="width: 100%; max-height: 70vh"
-        :src="`http://localhost:8080/api/media/${id}/stream`"
+        :src="`/api/media/${id}/stream`"
       />
     </div>
   </div>
