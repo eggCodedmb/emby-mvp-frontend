@@ -98,7 +98,7 @@ onMounted(loadData)
       <h2>媒体库</h2>
       <div class="actions">
         <button @click="openScanDialog">扫描媒体</button>
-        <button @click="loadData">刷新</button>
+        <button title="设置" @click="router.push('/settings')">⚙️</button>
         <button class="danger" @click="logout">退出</button>
       </div>
     </header>

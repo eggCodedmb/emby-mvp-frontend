@@ -6,6 +6,7 @@ const router = createRouter({
     { path: '/login', component: () => import('../views/LoginView.vue') },
     { path: '/', redirect: '/library' },
     { path: '/library', component: () => import('../views/LibraryView.vue') },
+    { path: '/settings', component: () => import('../views/SettingsView.vue') },
     { path: '/media/:id', component: () => import('../views/MediaPlayerView.vue') },
   ],
 })
