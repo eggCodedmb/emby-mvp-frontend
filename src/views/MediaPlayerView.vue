@@ -10,6 +10,7 @@ const id = Number(route.params.id)
 const media = ref<MediaItem | null>(null)
 const videoEl = ref<HTMLVideoElement | null>(null)
 const error = ref('')
+const streamUrl = ref('')
 let timer: number | undefined
 
 const loadDetail = async () => {
@@ -35,6 +36,8 @@ const saveProgress = async () => {
 onMounted(async () => {
   try {
     await loadDetail()
+    const token = localStorage.getItem('accessToken') || ''
+    streamUrl.value = `/api/media/${id}/stream?access_token=${encodeURIComponent(token)}`
     await loadProgress()
     timer = window.setInterval(saveProgress, 10000)
   } catch (e: any) {
@@ -59,7 +62,7 @@ onBeforeUnmount(async () => {
         ref="videoEl"
         controls
         style="width: 100%; max-height: 70vh"
-        :src="`/api/media/${id}/stream`"
+        :src="streamUrl"
       />
     </div>
   </div>
