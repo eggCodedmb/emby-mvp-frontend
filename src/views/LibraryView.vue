@@ -73,7 +73,8 @@ onMounted(loadData)
     <div class="grid">
       <div v-for="m in items" :key="m.id" class="card media" @click="router.push(`/media/${m.id}`)">
         <div class="cover">
-          <span>{{ (m.title || '?').slice(0, 1).toUpperCase() }}</span>
+          <img v-if="m.posterUrl" :src="`${m.posterUrl}?access_token=${encodeURIComponent(auth.token)}`" :alt="m.title" />
+          <span v-else>{{ (m.title || '?').slice(0, 1).toUpperCase() }}</span>
         </div>
         <h4>{{ m.title }}</h4>
         <p>ID: {{ m.id }}</p>

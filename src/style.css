@@ -22,6 +22,12 @@ button:disabled { opacity: .6; cursor: not-allowed; }
   align-items: center;
   justify-content: center;
 }
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
 .cover span {
   font-size: 40px;
   font-weight: 700;

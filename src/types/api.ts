@@ -13,4 +13,5 @@ export interface MediaItem {
   width?: number
   height?: number
   codec?: string
+  posterUrl?: string
 }
