@@ -14,6 +14,8 @@ const size = ref(20)
 const error = ref('')
 const scanLoading = ref(false)
 const scanMsg = ref('')
+const scanFolderPath = ref('')
+const scanDepth = ref<number | null>(0)
 
 const loadData = async () => {
   loading.value = true
@@ -35,7 +37,10 @@ const scanLibrary = async () => {
   scanLoading.value = true
   scanMsg.value = ''
   try {
-    const res = await http.post<ApiResponse<{ totalFiles: number; successCount: number; failCount: number }>>('/api/library/scan')
+    const res = await http.post<ApiResponse<{ totalFiles: number; successCount: number; failCount: number }>>('/api/library/scan', {
+      folderPath: scanFolderPath.value || null,
+      depth: scanDepth.value ?? 0,
+    })
     if (res.data.code !== 0) throw new Error(res.data.message)
     const d = res.data.data
     scanMsg.value = `扫描完成：总 ${d.totalFiles}，成功 ${d.successCount}，失败 ${d.failCount}`
@@ -60,6 +65,8 @@ onMounted(loadData)
     <header class="topbar">
       <h2>媒体库</h2>
       <div class="actions">
+        <input v-model="scanFolderPath" placeholder="扫描目录(可选，如 movies 或 E:/Media/movies)" style="width: 300px" />
+        <input v-model.number="scanDepth" type="number" min="0" placeholder="深度(0=不限)" style="width: 130px" />
         <button :disabled="scanLoading" @click="scanLibrary">{{ scanLoading ? '扫描中...' : '扫描媒体库' }}</button>
         <button @click="loadData">刷新</button>
         <button class="danger" @click="logout">退出</button>
