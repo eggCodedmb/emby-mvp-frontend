@@ -22,11 +22,12 @@ const playerOptions = reactive({
   src: '',
   poster: '',
   muted: false,
-  webFullScreen: true,
+  webFullScreen: false,
   autoPlay: false,
   loop: false,
   speedRate: ['2.0', '1.5', '1.25', '1.0', '0.75'],
   control: true,
+  controlBtns: ['audioTrack', 'quality', 'speedRate', 'volume', 'setting', 'pip'],
 })
 
 const posterUrl = computed(() => {
