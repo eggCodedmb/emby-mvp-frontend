@@ -137,9 +137,7 @@ onMounted(loadData)
           <span v-else>{{ (m.title || '?').slice(0, 1).toUpperCase() }}</span>
         </div>
         <h4>{{ m.title }}</h4>
-        <p>ID: {{ m.id }}</p>
-        <p>{{ m.width || '-' }} x {{ m.height || '-' }}</p>
-        <p>{{ m.codec || '-' }}</p>
+        <p>{{ m.width || '-' }} × {{ m.height || '-' }} · {{ m.codec || '-' }}</p>
       </div>
     </div>
   </div>
