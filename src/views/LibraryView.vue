@@ -16,6 +16,10 @@ const scanLoading = ref(false)
 const scanMsg = ref('')
 const scanFolderPath = ref('')
 const scanDepth = ref<number | null>(0)
+const folderDialog = ref(false)
+const folderCurrentPath = ref('')
+const folderParentPath = ref('')
+const folderList = ref<Array<{ name: string; path: string }>>([])
 
 const loadData = async () => {
   loading.value = true
@@ -31,6 +35,30 @@ const loadData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const loadFolders = async (path = '') => {
+  const res = await http.get<ApiResponse<{ currentPath: string; parentPath: string; folders: Array<{ name: string; path: string }> }>>('/api/library/folders', {
+    params: { path },
+  })
+  if (res.data.code !== 0) throw new Error(res.data.message)
+  folderCurrentPath.value = res.data.data.currentPath || ''
+  folderParentPath.value = res.data.data.parentPath || ''
+  folderList.value = res.data.data.folders || []
+}
+
+const openFolderDialog = async () => {
+  try {
+    await loadFolders(scanFolderPath.value || '')
+    folderDialog.value = true
+  } catch (e: any) {
+    scanMsg.value = e?.response?.data?.message || e.message || '读取目录失败'
+  }
+}
+
+const chooseFolder = (path: string) => {
+  scanFolderPath.value = path
+  folderDialog.value = false
 }
 
 const scanLibrary = async () => {
@@ -65,7 +93,8 @@ onMounted(loadData)
     <header class="topbar">
       <h2>媒体库</h2>
       <div class="actions">
-        <input v-model="scanFolderPath" placeholder="扫描目录(可选，如 movies 或 E:/Media/movies)" style="width: 300px" />
+        <input v-model="scanFolderPath" placeholder="扫描目录(可选，如 movies)" style="width: 260px" />
+        <button @click="openFolderDialog">选择目录</button>
         <input v-model.number="scanDepth" type="number" min="0" placeholder="深度(0=不限)" style="width: 130px" />
         <button :disabled="scanLoading" @click="scanLibrary">{{ scanLoading ? '扫描中...' : '扫描媒体库' }}</button>
         <button @click="loadData">刷新</button>
@@ -76,6 +105,19 @@ onMounted(loadData)
     <p v-if="error" class="error">{{ error }}</p>
     <p v-if="scanMsg" :class="scanMsg.includes('失败') ? 'error' : ''">{{ scanMsg }}</p>
     <p v-if="loading">加载中...</p>
+
+    <div v-if="folderDialog" class="card" style="margin: 10px 0;">
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+        <strong>选择扫描目录：</strong>
+        <code>{{ folderCurrentPath || '/' }}</code>
+        <button @click="loadFolders(folderParentPath)" :disabled="!folderCurrentPath">上一级</button>
+        <button @click="chooseFolder(folderCurrentPath)">选中当前目录</button>
+        <button class="danger" @click="folderDialog=false">关闭</button>
+      </div>
+      <div style="display:grid; gap:6px; max-height:220px; overflow:auto;">
+        <button v-for="f in folderList" :key="f.path" style="text-align:left" @click="loadFolders(f.path)">📁 {{ f.name }}</button>
+      </div>
+    </div>
 
     <div class="grid">
       <div v-for="m in items" :key="m.id" class="card media" @click="router.push(`/media/${m.id}`)">
