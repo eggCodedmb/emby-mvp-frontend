@@ -72,3 +72,32 @@ button:disabled { opacity: .6; cursor: not-allowed; }
   justify-content: flex-end;
   gap: 8px;
 }
+
+.player-page {
+  max-width: 1280px;
+}
+.player-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.player-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+.player-shell {
+  background: #0b1020;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+.player-meta {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+.player-meta p {
+  margin: 0;
+  color: #444;
+}
