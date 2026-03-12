@@ -12,14 +12,14 @@ const items = ref<MediaItem[]>([])
 const page = ref(1)
 const size = ref(20)
 const error = ref('')
+
 const scanLoading = ref(false)
 const scanMsg = ref('')
-const scanFolderPath = ref('')
-const scanDepth = ref<number | null>(0)
-const folderDialog = ref(false)
+const scanDialog = ref(false)
 const folderCurrentPath = ref('')
 const folderParentPath = ref('')
 const folderList = ref<Array<{ name: string; path: string }>>([])
+const selectedFolderPath = ref('')
 
 const loadData = async () => {
   loading.value = true
@@ -47,31 +47,37 @@ const loadFolders = async (path = '') => {
   folderList.value = res.data.data.folders || []
 }
 
-const openFolderDialog = async () => {
+const openScanDialog = async () => {
+  scanMsg.value = ''
+  selectedFolderPath.value = ''
   try {
-    await loadFolders(scanFolderPath.value || '')
-    folderDialog.value = true
+    await loadFolders('')
+    scanDialog.value = true
   } catch (e: any) {
     scanMsg.value = e?.response?.data?.message || e.message || '读取目录失败'
   }
 }
 
-const chooseFolder = (path: string) => {
-  scanFolderPath.value = path
-  folderDialog.value = false
+const selectCurrentFolder = () => {
+  selectedFolderPath.value = folderCurrentPath.value
 }
 
-const scanLibrary = async () => {
+const startScan = async () => {
+  if (!selectedFolderPath.value) {
+    scanMsg.value = '请先选择目录'
+    return
+  }
   scanLoading.value = true
   scanMsg.value = ''
   try {
-    const res = await http.post<ApiResponse<{ totalFiles: number; successCount: number; failCount: number }>>('/api/library/scan', {
-      folderPath: scanFolderPath.value || null,
-      depth: scanDepth.value ?? 0,
+    const res = await http.post<ApiResponse<{ successCount: number; failCount: number }>>('/api/library/scan', {
+      folderPath: selectedFolderPath.value,
+      depth: 0,
     })
     if (res.data.code !== 0) throw new Error(res.data.message)
     const d = res.data.data
-    scanMsg.value = `扫描完成：总 ${d.totalFiles}，成功 ${d.successCount}，失败 ${d.failCount}`
+    scanMsg.value = `成功（${d.successCount ?? 0}）/失败（${d.failCount ?? 0}）`
+    scanDialog.value = false
     await loadData()
   } catch (e: any) {
     scanMsg.value = e?.response?.data?.message || e.message || '扫描失败'
@@ -93,10 +99,7 @@ onMounted(loadData)
     <header class="topbar">
       <h2>媒体库</h2>
       <div class="actions">
-        <input v-model="scanFolderPath" placeholder="扫描目录(可选，如 movies)" style="width: 260px" />
-        <button @click="openFolderDialog">选择目录</button>
-        <input v-model.number="scanDepth" type="number" min="0" placeholder="深度(0=不限)" style="width: 130px" />
-        <button :disabled="scanLoading" @click="scanLibrary">{{ scanLoading ? '扫描中...' : '扫描媒体库' }}</button>
+        <button @click="openScanDialog">扫描媒体</button>
         <button @click="loadData">刷新</button>
         <button class="danger" @click="logout">退出</button>
       </div>
@@ -106,16 +109,27 @@ onMounted(loadData)
     <p v-if="scanMsg" :class="scanMsg.includes('失败') ? 'error' : ''">{{ scanMsg }}</p>
     <p v-if="loading">加载中...</p>
 
-    <div v-if="folderDialog" class="card" style="margin: 10px 0;">
-      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-        <strong>选择扫描目录：</strong>
-        <code>{{ folderCurrentPath || '/' }}</code>
-        <button @click="loadFolders(folderParentPath)" :disabled="!folderCurrentPath">上一级</button>
-        <button @click="chooseFolder(folderCurrentPath)">选中当前目录</button>
-        <button class="danger" @click="folderDialog=false">关闭</button>
-      </div>
-      <div style="display:grid; gap:6px; max-height:220px; overflow:auto;">
-        <button v-for="f in folderList" :key="f.path" style="text-align:left" @click="loadFolders(f.path)">📁 {{ f.name }}</button>
+    <div v-if="scanDialog" class="modal-mask">
+      <div class="modal-card">
+        <h3>选择扫描目录</h3>
+        <p class="muted">当前：{{ folderCurrentPath || '盘符列表' }}</p>
+        <p class="muted">已选：{{ selectedFolderPath || '未选择' }}</p>
+
+        <div class="modal-actions-top">
+          <button @click="loadFolders(folderParentPath)" :disabled="!folderCurrentPath">上一级</button>
+          <button @click="selectCurrentFolder">选中当前目录</button>
+        </div>
+
+        <div class="folder-list">
+          <button v-for="f in folderList" :key="f.path" class="folder-item" @click="loadFolders(f.path)">
+            📁 {{ f.name }}
+          </button>
+        </div>
+
+        <div class="modal-footer">
+          <button class="danger" @click="scanDialog = false">取消</button>
+          <button :disabled="scanLoading" @click="startScan">{{ scanLoading ? '扫描中...' : '开始扫描' }}</button>
+        </div>
       </div>
     </div>
 
