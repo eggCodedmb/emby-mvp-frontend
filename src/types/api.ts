@@ -16,3 +16,13 @@ export interface MediaItem {
   bitrateKbps?: number
   posterUrl?: string
 }
+
+export interface MediaUpdateRequest {
+  title: string
+  codec?: string | null
+  width?: number | null
+  height?: number | null
+  durationSec?: number | null
+  bitrateKbps?: number | null
+  posterUrl?: string | null
+}
