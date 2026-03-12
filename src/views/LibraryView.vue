@@ -72,6 +72,9 @@ onMounted(loadData)
 
     <div class="grid">
       <div v-for="m in items" :key="m.id" class="card media" @click="router.push(`/media/${m.id}`)">
+        <div class="cover">
+          <span>{{ (m.title || '?').slice(0, 1).toUpperCase() }}</span>
+        </div>
         <h4>{{ m.title }}</h4>
         <p>ID: {{ m.id }}</p>
         <p>{{ m.width || '-' }} x {{ m.height || '-' }}</p>
