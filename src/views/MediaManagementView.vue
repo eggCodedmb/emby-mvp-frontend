@@ -132,13 +132,13 @@ const closeEditDialog = () => {
   resetEditForm()
 }
 
-const toNullableString = (value: string) => {
+const toOptionalString = (value: string) => {
   const trimmed = value.trim()
-  return trimmed ? trimmed : null
+  return trimmed ? trimmed : undefined
 }
 
-const toNullableNumber = (value?: number) => {
-  return typeof value === 'number' ? value : null
+const toOptionalNumber = (value?: number) => {
+  return typeof value === 'number' ? value : undefined
 }
 
 const submitEdit = async () => {
@@ -153,12 +153,12 @@ const submitEdit = async () => {
   try {
     const payload: MediaUpdateRequest = {
       title,
-      codec: toNullableString(editForm.codec),
-      width: toNullableNumber(editForm.width),
-      height: toNullableNumber(editForm.height),
-      durationSec: toNullableNumber(editForm.durationSec),
-      bitrateKbps: toNullableNumber(editForm.bitrateKbps),
-      posterUrl: toNullableString(editForm.posterUrl),
+      codec: toOptionalString(editForm.codec),
+      width: toOptionalNumber(editForm.width),
+      height: toOptionalNumber(editForm.height),
+      durationSec: toOptionalNumber(editForm.durationSec),
+      bitrateKbps: toOptionalNumber(editForm.bitrateKbps),
+      posterUrl: toOptionalString(editForm.posterUrl),
     }
     const res = await http.put<ApiResponse<MediaItem>>(`/api/media/${editingId.value}`, payload)
     if (res.data.code !== 0) throw new Error(res.data.message)

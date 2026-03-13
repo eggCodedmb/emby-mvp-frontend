@@ -72,10 +72,16 @@ const startScan = async () => {
 
   scanLoading.value = true
   try {
-    const res = await http.post<ApiResponse<{ successCount: number; failCount: number }>>('/api/library/scan', {
-      folderPath: selectedFolderPath.value,
-      depth: 0,
-    })
+    const res = await http.post<ApiResponse<{ successCount: number; failCount: number }>>(
+      '/api/library/scan',
+      {
+        folderPath: selectedFolderPath.value,
+        depth: 0,
+      },
+      {
+        timeout: 0,
+      },
+    )
     if (res.data.code !== 0) throw new Error(res.data.message)
     const data = res.data.data
     ElMessage.success(t('library.scanResult', {
