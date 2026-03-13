@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -23,6 +23,7 @@ const folderCurrentPath = ref('')
 const folderParentPath = ref('')
 const folderList = ref<Array<{ name: string; path: string }>>([])
 const selectedFolderPath = ref('')
+let scanPollTimer: number | null = null
 
 const loadData = async () => {
   loading.value = true
@@ -64,6 +65,13 @@ const selectCurrentFolder = () => {
   selectedFolderPath.value = folderCurrentPath.value
 }
 
+const clearScanPoll = () => {
+  if (scanPollTimer !== null) {
+    window.clearInterval(scanPollTimer)
+    scanPollTimer = null
+  }
+}
+
 const startScan = async () => {
   if (!selectedFolderPath.value) {
     ElMessage.warning(t('library.chooseFolderFirst'))
@@ -71,33 +79,51 @@ const startScan = async () => {
   }
 
   scanLoading.value = true
+  clearScanPoll()
   try {
-    const res = await http.post<ApiResponse<{ successCount: number; failCount: number }>>(
-      '/api/library/scan',
-      {
-        folderPath: selectedFolderPath.value,
-        depth: 0,
-      },
-      {
-        timeout: 0,
-      },
-    )
+    const res = await http.post<ApiResponse<{ id: number; status: string }>>('/api/library/scan/start', {
+      folderPath: selectedFolderPath.value,
+      depth: 0,
+    })
     if (res.data.code !== 0) throw new Error(res.data.message)
-    const data = res.data.data
-    ElMessage.success(t('library.scanResult', {
-      success: data.successCount ?? 0,
-      fail: data.failCount ?? 0,
-    }))
+
+    const jobId = res.data.data?.id
+    if (!jobId) throw new Error('scan job not created')
+
+    ElMessage.success(t('library.scanning'))
     scanDialog.value = false
-    await loadData()
+
+    scanPollTimer = window.setInterval(async () => {
+      try {
+        const statusRes = await http.get<ApiResponse<{ status: string; successCount: number; failCount: number }>>(`/api/library/scan/${jobId}`)
+        if (statusRes.data.code !== 0) throw new Error(statusRes.data.message)
+        const job = statusRes.data.data
+        if (job.status === 'DONE' || job.status === 'FAILED') {
+          clearScanPoll()
+          scanLoading.value = false
+          ElMessage.success(t('library.scanResult', {
+            success: job.successCount ?? 0,
+            fail: job.failCount ?? 0,
+          }))
+          await loadData()
+        }
+      } catch (pollErr: any) {
+        clearScanPoll()
+        scanLoading.value = false
+        ElMessage.error(pollErr?.response?.data?.message || pollErr.message || t('library.scanFailed'))
+      }
+    }, 2000)
   } catch (e: any) {
     ElMessage.error(e?.response?.data?.message || e.message || t('library.scanFailed'))
-  } finally {
     scanLoading.value = false
   }
 }
 
 onMounted(loadData)
+
+onBeforeUnmount(() => {
+  clearScanPoll()
+})
 </script>
 
 <template>

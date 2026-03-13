@@ -82,6 +82,15 @@
     fetchMissing: 'Fetch Missing Posters',
     missingPosterList: 'Videos without posters ({count})',
   },
+  logs: {
+    title: 'Log Management',
+    manage: 'Open Log Management',
+    loadFailed: 'Failed to load logs',
+    search: 'Search',
+    time: 'Time',
+    type: 'Type',
+    content: 'Content',
+  },
 }
 
 export default en

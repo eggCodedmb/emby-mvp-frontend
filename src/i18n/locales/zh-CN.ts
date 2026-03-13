@@ -82,6 +82,15 @@
     fetchMissing: '手动获取封面',
     missingPosterList: '未有封面的视频（{count}）',
   },
+  logs: {
+    title: '日志管理',
+    manage: '进入日志管理',
+    loadFailed: '加载日志失败',
+    search: '查询',
+    time: '时间',
+    type: '类型',
+    content: '内容',
+  },
 }
 
 export default zhCN

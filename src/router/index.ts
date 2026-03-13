@@ -12,6 +12,7 @@ const router = createRouter({
         { path: '', redirect: '/library' },
         { path: 'library', component: () => import('../views/LibraryView.vue') },
         { path: 'settings', component: () => import('../views/SettingsView.vue') },
+        { path: 'logs', component: () => import('../views/LogManagementView.vue') },
         { path: 'media-management', component: () => import('../views/MediaManagementView.vue') },
         { path: 'media/:id', component: () => import('../views/MediaPlayerView.vue') },
       ],

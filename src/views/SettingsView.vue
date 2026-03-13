@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import http from '../api/http'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import type { ApiResponse, MediaItem } from '../types/api'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const autoEnabled = ref(false)
 const intervalMinutes = ref(60)
@@ -73,6 +75,11 @@ onMounted(async () => {
     <section class="card settings-card settings-card--language">
       <h2>{{ t('common.language') }}</h2>
       <LanguageSwitcher />
+    </section>
+
+    <section class="card settings-card">
+      <h2>{{ t('logs.title') }}</h2>
+      <button class="btn" @click="router.push('/logs')">{{ t('logs.manage') }}</button>
     </section>
 
     <section class="card settings-card">

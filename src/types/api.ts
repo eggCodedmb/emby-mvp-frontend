@@ -26,3 +26,10 @@ export interface MediaUpdateRequest {
   bitrateKbps?: number | null
   posterUrl?: string | null
 }
+
+export interface OperationLog {
+  id: number
+  type: string
+  content?: string
+  createdAt: string
+}
