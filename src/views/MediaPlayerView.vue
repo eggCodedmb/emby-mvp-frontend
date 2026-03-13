@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { ArrowLeft } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import http from '../api/http'
@@ -142,11 +143,6 @@ onBeforeUnmount(async () => {
 
 <template>
   <div class="page player-page">
-    <section class="card player-toolbar">
-      <el-button text type="primary" @click="router.push('/library')">{{ t('common.backToLibrary') }}</el-button>
-      <h1 class="page-title page-title--player">{{ media?.title || t('playback.player') }}</h1>
-    </section>
-
     <p v-if="error" class="error">{{ error }}</p>
 
     <div
@@ -157,6 +153,13 @@ onBeforeUnmount(async () => {
       @touchend="stopBoost"
       @touchcancel="stopBoost"
     >
+      <div class="player-header">
+        <el-button text class="player-back" @click="router.push('/library')" :aria-label="t('common.backToLibrary')">
+          <el-icon><ArrowLeft /></el-icon>
+        </el-button>
+        <div class="player-title">{{ media?.title || t('playback.player') }}</div>
+      </div>
+
       <vue3VideoPlay v-bind="playerOptions" @timeupdate="onTimeupdate" />
       <div v-if="isBoosting" class="boost-tip">{{ t('playback.boostingTip') }}</div>
     </div>
@@ -179,19 +182,43 @@ onBeforeUnmount(async () => {
 </template>
 
 <style scoped>
-.player-toolbar {
-  margin-bottom: 12px;
-  display: grid;
-  gap: 8px;
-}
-
 .player-shell {
   position: relative;
 }
 
-.page-title--player {
+.player-header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.player-back {
+  position: absolute;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.player-title {
+  max-width: min(75%, 680px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
+  line-height: 1.2;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
   word-break: break-word;
-  font-size: clamp(1.15rem, 4.5vw, 1.6rem);
 }
 
 .boost-tip {
