@@ -164,20 +164,6 @@ onBeforeUnmount(async () => {
       <div v-if="isBoosting" class="boost-tip">{{ t('playback.boostingTip') }}</div>
     </div>
 
-    <div v-if="media" class="player-meta card">
-      <div class="meta-row">
-        <span>{{ t('playback.resolution') }}</span>
-        <strong>{{ media.width || '-' }} x {{ media.height || '-' }}</strong>
-      </div>
-      <div class="meta-row">
-        <span>{{ t('playback.codec') }}</span>
-        <strong>{{ media.codec || '-' }}</strong>
-      </div>
-      <div class="meta-row meta-row--path">
-        <span>{{ t('playback.path') }}</span>
-        <strong>{{ media.filePath }}</strong>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -234,41 +220,4 @@ onBeforeUnmount(async () => {
   pointer-events: none;
 }
 
-.player-meta {
-  margin-top: 12px;
-  display: grid;
-  gap: 8px;
-}
-
-.meta-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  color: #2f3a56;
-}
-
-.meta-row strong {
-  text-align: right;
-  max-width: 65%;
-  word-break: break-word;
-}
-
-.meta-row--path {
-  flex-direction: column;
-}
-
-.meta-row--path strong {
-  max-width: 100%;
-  text-align: left;
-}
-
-@media (min-width: 768px) {
-  .player-meta {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .meta-row--path {
-    grid-column: 1 / -1;
-  }
-}
 </style>
